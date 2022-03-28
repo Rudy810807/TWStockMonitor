@@ -80,8 +80,14 @@ def get_trace_list():
 def get_TW_Stock_price(item):
     # res = requests.get('https://tw.stock.yahoo.com/_td-stock/api/resource/FinanceChartService.ApacLibraCharts;autoRefresh=1648311604781;symbols=%5B%226147.TWO%22%5D;type=tick?bkt=&device=desktop&ecma=modern&feature=ecmaModern%2CuseVersionSwitch%2CuseNewQuoteTabColor&intl=tw&lang=zh-Hant-TW&partner=none&prid=djvbn5th3uf7o&region=TW&site=finance&tz=Asia%2FTaipei&ver=1.2.1233&returnMeta=true')
     res = requests.get('https://tw.stock.yahoo.com/_td-stock/api/resource/FinanceChartService.ApacLibraCharts;symbols=%5B%22'+ item +'.TWO%22%5D;type=tick?bkt=&returnMeta=true')
-    price = res.json()['data'][0]['chart']['meta']['regularMarketPrice']
-    return item + ': ' + str(price)
+    price_now = res.json()['data'][0]['chart']['meta']['regularMarketPrice']
+    price_lastday = res.json()['data'][0]['chart']['meta']['previousClose']
+
+    difference = price_now - price_lastday
+    percent = round((price_now - price_lastday)*100/price_lastday,2)
+
+    return item.rjust(5) + ': ' + str(price_now).rjust(8) + '(' + str(percent) + '%)'
+
 # TW Future
 def get_TW_Future_price(item):
     # TW Future
@@ -99,9 +105,10 @@ if __name__ == '__main__':
     list = get_trace_list()
     price = []
     while(True):
+
         for item in list:
             price.append(get_TW_Stock_price(item[0]))
-
+  
         os.system("cls")
         print(combinestring(price))
         time.sleep(2)
