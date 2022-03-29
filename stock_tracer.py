@@ -4,6 +4,7 @@ import time
 import json
 import csv
 import os
+
 # Taiwan Future Url
 Govement_url = "https://mis.taifex.com.tw/futures/api/getQuoteList"
 postdata = {"MarketType":"1",
@@ -83,10 +84,16 @@ def get_TW_Stock_price(item):
     price_now = res.json()['data'][0]['chart']['meta']['regularMarketPrice']
     price_lastday = res.json()['data'][0]['chart']['meta']['previousClose']
 
-    difference = price_now - price_lastday
+    difference = round(price_now - price_lastday,2)
     percent = round((price_now - price_lastday)*100/price_lastday,2)
+    if difference>0:
+        sdifference = '+' + str(difference)
+        spercent = '+' + str(percent)
+    else:
+        sdifference = str(difference)
+        spercent = str(percent)
 
-    return item.rjust(5) + ': ' + str(price_now).rjust(8) + '(' + str(percent) + '%)'
+    return item.rjust(5) + ': ' + str(price_now).rjust(8) + sdifference.rjust(8) + '(' + spercent.ljust(5,'0') + '%)'
 
 # TW Future
 def get_TW_Future_price(item):
@@ -99,7 +106,6 @@ def combinestring(list):
     for item in list:
         str = str + item + '\n'
     return str
-
 
 if __name__ == '__main__':
     list = get_trace_list()
